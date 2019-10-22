@@ -1,0 +1,68 @@
+version: '3.3'
+services:
+    web:
+        image: nginx:1.17.4-alpine
+        container_name: web
+        restart: always
+        ports:
+            - 8080:80
+        volumes:
+            - ${MAIN_PATH}/html:/usr/share/nginx/html
+        networks:
+            - frontend
+    api:
+        # ========== Node js Build REST Service ==========
+        image: node:8.7-alpine
+        container_name: node-api
+        restart: always
+        ports:
+            - 3000:3000
+        volumes:
+            - ${MAIN_PATH}/restful-api:/app/rest-service
+        working_dir: /app/rest-service
+        command: npm start
+        networks:
+            frontend:
+                ipv4_address: 192.168.0.101
+            backend:
+                ipv4_address: 10.0.15.101
+        
+    db:
+        image: mysql
+        container_name: mysql-db
+        command: 
+            --default-authentication-plugin=mysql_native_password
+            --character-set-server=utf8mb4
+            --collation-server=utf8mb4_unicode_ci
+        restart: always
+        # ports:
+        #     - 13306:3306
+        # environment:
+        #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - ${MAIN_PATH}/db/data:/var/lib/mysql
+            - ${MAIN_PATH}/db/conf.d:/etc/mysql/conf.d
+        networks:
+            backend:
+                ipv4_address: 10.0.15.100
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: myadmin
+        restart: always
+        ports:
+            - 9000:80
+        networks:
+            - backend
+
+networks:
+    frontend:
+        ipam:
+            config:
+                - subnet: 192.168.0.0/24
+    backend:
+        ipam:
+            config:
+                - subnet: 10.0.15.0/24
+
+# volumes:
+#     web-path: 
