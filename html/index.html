@@ -1,12 +1,396 @@
 <html>
-	<head>
-		<title>XO AI Project</title>
-		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	</head>
-	<body>
-		<h1>XO AI Project</h1>
-	</body>
+
+<head>
+	<title>XO AI Project</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<style>
+	.chickAble {
+		cursor: pointer;
+	}
+	.center-position{
+		width: 50%;
+    	margin: 0 auto;
+	}
+	.font-xo{
+		color: black;
+   		font-size: 55px;
+	}
+
+	.frame-table {
+		border-style: solid;
+		border-width: 5px;
+		border-color: black;
+	}
+	.border-table {
+		width: 100px;
+		height: 100px;
+		border-style: solid;
+		border-width: 5px;
+		border-color: black;
+	}
+	.win-hilight {
+		border-width: 6px !important;
+		border-color: red !important;
+	}
+
+	.right-column {
+		margin-left: -5px;
+	}
+
+	.bottom-column {
+		margin-top: -5px;
+	}
+</style>
+
+<body>
+	<div class="card text-center text-white bg-info" style="height: 100%; border-radius: 0;">
+		<div class="card-header">
+			<h1> AI OX PROJECT </h1>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-lg-1 col-md-2"></div>
+				<div class="col-lg-10 col-md-8">
+
+					<!-- ===== Menu ===== -->
+					<div class="row" id="menu">
+						<div class="col-lg-6 col-md-12">
+							<div class="card text-white bg-danger mb-3 chickAble" onclick="loadingSubMenu('AI')">
+								<img src="./img/human-v-ai.jpg" class="card-img-top" alt="Human VS AI">
+								<div class="card-body">
+									<h4 class="card-title">Human VS AI</h4>
+									<p class="card-text" style="margin-top: 15px;">
+										ใช้ปัญญาของคุณ สู้กับ ปัญญาประดิษฐ์
+										<br />
+										ในช่วงแรกอาจจะง่ายต่อการชนะมัน แต่ทุกครั้งที่มันแพ้ มันจะเก่งขึ้น!
+									</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-12">
+							<div class="card text-white bg-success mb-3 chickAble" onclick="loadingSubMenu('Human')">
+								<img src="./img/human-v-human.jpg" class="card-img-top" alt="Human VS Human">
+								<div class="card-body">
+									<h4 class="card-title">Human VS Human</h4>
+									<p class="card-text" style="margin-top: 15px;">
+										ใช้ปัญญาของคุณ สู้กับ ปัญญาของเพื่อนคุณ
+										<br />
+										วัดกันไปเลย ระหว่างคุณกับเพื่อน ใครจะแน่กว่ากัน!
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- ===== Play With AI ===== -->
+					<div class="row" id="menuForPlayWithAI" style="display: none;">
+						<div class="col-lg-6 col-md-12">
+							<div class="card text-white mb-3 bg-secondary">
+								<div class="card-header">คุณต้องการให้ใครเล่นก่อน ?</div>
+								<div class="card-body">
+									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
+										<label class="btn btn-success">
+											<input type="radio" name="firstPlayAi" id="firstPlayAi1" value="you">คุณ
+										</label>
+										<label class="btn btn-danger">
+											<input type="radio" name="firstPlayAi" id="firstPlayAi2" value="ai">AI
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-12">
+							<div class="card text-white mb-3 bg-secondary">
+								<div class="card-header">คุณต้องการเล่นเป็น X หรือ O ?</div>
+								<div class="card-body">
+									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
+										<label class="btn btn-success">
+											<input type="radio" name="youAre" id="X">X
+										</label>
+										<label class="btn btn-primary">
+											<input type="radio" name="youAre" id="O">O
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- ===== Play With Human ===== -->
+					<div class="row" id="menuForPlayWithHuman" style="display: none;">
+						<div class="col-lg-12 col-md-12">
+							<div class="card text-white mb-3 bg-secondary">
+								<div class="card-header">คุณต้องการให้ X หรือ O เล่นก่อน ?</div>
+								<div class="card-body">
+									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
+										<label class="btn btn-success">
+											<input type="radio" name="firstPlay" id="firstPlay1" value="X" onchange="readyToPlay()">X
+										</label>
+										<label class="btn btn-primary">
+											<input type="radio" name="firstPlay" id="firstPlay2" value="O" onchange="readyToPlay()">O
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- ===== Playing Game ===== -->
+					<div class="row" id="playingGame" style="display: none;">
+						<div class="col-lg-12 col-md-12">
+							<div class="card mb-3 bg-light center-position" style="width: 353px;">
+								<div class="card-body frame-table">
+									<div style="margin-left: 15px;">
+										<div class="row">
+											<div class="column border-table chickAble" onclick="selectedCross(0,0)"><span p-x="0" p-y="0" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(0,1)"><span p-x="0" p-y="1" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(0,2)"><span p-x="0" p-y="2" class="center-position font-xo"></span></div>
+										</div>
+										<div class="row">
+											<div class="column border-table chickAble" onclick="selectedCross(1,0)"><span p-x="1" p-y="0" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(1,1)"><span p-x="1" p-y="1" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(1,2)"><span p-x="1" p-y="2" class="center-position font-xo"></span></div>
+										</div>
+										<div class="row">
+											<div class="column border-table chickAble" onclick="selectedCross(2,0)"><span p-x="2" p-y="0" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(2,1)"><span p-x="2" p-y="1" class="center-position font-xo"></span></div>
+											<div class="column border-table chickAble" onclick="selectedCross(2,2)"><span p-x="2" p-y="2" class="center-position font-xo"></span></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card mb-3 bg-light center-position" style="width: 330px;">
+								<div class="card-body">
+									<div style="margin-left: 15px;" id="turnPlayFrame">
+										<h3 style="color: black;">
+											ตาของ : <span id="turnPlay"></span>
+										</h3>
+									</div>
+									<button type="button" class="btn btn-primary" id="playAgain" onclick="location.reload()" style="display: none;">เล่นใหม่อีกครั้ง</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-1 col-md-2"></div>
+			</div>
+
+		</div>
+
+		<div class="card-footer text-muted">
+			<span class="text-center text-white"> Design by © Anapat Muangchol </span>
+		</div>
+	</div>
+
+	<!-- Pop up -->
+	<div class="modal" tabindex="-1" role="dialog" id="result-popup">
+			<div class="modal-dialog" role="document">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title">จบเกม!</h5>
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+				</div>
+				<div class="modal-body" style="text-align: center;">
+				  <h4 id="result"></h4>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-primary" onclick="location.reload()">เล่นใหม่อีกครั้ง</button>
+				</div>
+			  </div>
+			</div>
+		  </div>
+
+</body>
+
+<script type="text/javascript">
+	var playWith = null;
+	var boardXO = [ 
+		['', '', ''], 
+		['', '', ''], 
+		['', '', '']
+	];
+	var playFirst = null;
+	var playSecond = null;
+	var turnPlay = 1;
+	var isEndGame = false;
+
+	$(document).ready(function () {
+		
+	});
+
+	function loadingSubMenu(menuClick) {
+		$('#menu').fadeOut(500, function () {
+			playWith = menuClick;
+			if (playWith == 'AI') {
+				$('#menuForPlayWithAI').fadeIn(500);
+			}
+			if (playWith == 'Human') {
+				$('#menuForPlayWithHuman').fadeIn(500);
+			}
+		});
+	}
+
+	function readyToPlay() {
+		if (playWith == 'Human') {
+			var firstPlay = $("input[name='firstPlay']:checked").val();
+			if (firstPlay) {
+				playFirst = firstPlay;
+				if (playFirst == 'X') playSecond = 'O'
+				else playSecond = 'X'
+				playWithHuman();
+			}
+		}
+	}
+
+	// ===== Play With Human ===== 
+	function playWithHuman() {
+		$('#menuForPlayWithHuman').fadeOut(500, function () {
+			displayPlayerTurn(getCurrentPlayer());
+			$('#playingGame').fadeIn(500);
+		});
+	}
+	function displayPlayerTurn() {
+		$('#turnPlay').text(getCurrentPlayer());
+	}
+	function selectedCross(x,y) {
+		if (isEndGame) return false;
+		if (!boardXO[x][y]) {
+			var currentPlayer = getCurrentPlayer();
+			boardXO[x][y] = currentPlayer;
+			$('span[p-x='+x+'][p-y='+y+']').text(currentPlayer);
+
+			// check end game
+			if (checkDraw()) {
+				$('#result').text('>>> เสมอกัน <<<');
+				isEndGame = true;
+
+				setTimeout(function(){
+					$('#result-popup').modal('show')
+					$('#turnPlayFrame').hide();
+					$('#playAgain').show();
+				}, 1500);
+			}
+			var whoIsWin = checkWin();
+			if (whoIsWin) {
+				$('#result').text('>>> ' + whoIsWin + ' ชนะ! <<<');
+				isEndGame = true;
+				
+				setTimeout(function(){
+					$('#result-popup').modal('show')
+					$('#turnPlayFrame').hide();
+					$('#playAgain').show();
+				}, 1500);
+			}
+
+			if(turnPlay == 1) turnPlay = 2;
+			else turnPlay = 1;
+			displayPlayerTurn(currentPlayer);
+		}
+	}
+	function getCurrentPlayer() {
+		if (turnPlay == 1) return playFirst;
+		if (turnPlay == 2) return playSecond;
+	}
+	function checkDraw() {
+		if (boardXO[0][0] && boardXO[0][1] && boardXO[0][2]
+			&& boardXO[1][0] && boardXO[1][1] && boardXO[1][2]
+			&& boardXO[2][0] && boardXO[2][1] && boardXO[2][2]) return true;
+		else return false;
+	}
+	function checkWin() {
+		// case 1
+		if (boardXO[0][0]) {
+			var playerCross = boardXO[0][0];
+			if (boardXO[0][1] == playerCross && boardXO[0][2] == playerCross) {
+				winHilight(0,0, 0,1, 0,2);
+				return playerCross;
+			}
+		}
+
+		// case 2
+		if (boardXO[0][0]) {
+			var playerCross = boardXO[0][0];
+			if (boardXO[1][0] == playerCross && boardXO[2][0] == playerCross) {
+				winHilight(0,0, 1,0, 2,0);
+				return playerCross;
+			}
+		}
+
+		// case 3
+		if (boardXO[0][0]) {
+			var playerCross = boardXO[0][0];
+			if (boardXO[1][1] == playerCross && boardXO[2][2] == playerCross) {
+				winHilight(0,0, 1,1, 2,2);
+				return playerCross;
+			}
+		}
+		
+		// case 4
+		if (boardXO[0][1]) {
+			var playerCross = boardXO[0][1];
+			if (boardXO[1][1] == playerCross && boardXO[2][1] == playerCross) {
+				winHilight(0,1, 1,1, 2,1);
+				return playerCross;
+			}
+		}
+		
+		
+		// case 5
+		if (boardXO[0][2]) {
+			var playerCross = boardXO[0][2];
+			if (boardXO[1][2] == playerCross && boardXO[2][2] == playerCross) {
+				winHilight(0,2, 1,2, 2,2);
+				return playerCross;
+			}
+		}
+
+		// case 6
+		if (boardXO[0][2]) {
+			var playerCross = boardXO[0][2];
+			if (boardXO[1][1] == playerCross && boardXO[2][0] == playerCross) {
+				winHilight(0,2, 1,1, 2,0);
+				return playerCross;
+			}
+		}
+
+		// case 7
+		if (boardXO[1][0]) {
+			var playerCross = boardXO[1][0];
+			if (boardXO[1][1] == playerCross && boardXO[1][2] == playerCross) {
+				winHilight(1,0, 1,1, 1,2);
+				return playerCross;
+			}
+		}
+		
+		// case 8
+		if (boardXO[2][0]) {
+			var playerCross = boardXO[2][0];
+			if (boardXO[2][1] == playerCross && boardXO[2][2] == playerCross) {
+				winHilight(2,0, 2,1, 2,2);
+				return playerCross;
+			}
+		}
+
+		return null;
+	}
+	function winHilight(x1, y1, x2, y2, x3, y3) {
+		$('span[p-x='+x1+'][p-y='+y1+']').parent().addClass("win-hilight");
+		$('span[p-x='+x2+'][p-y='+y2+']').parent().addClass("win-hilight");
+		$('span[p-x='+x3+'][p-y='+y3+']').parent().addClass("win-hilight");
+	}
+
+</script>
+
 </html>
