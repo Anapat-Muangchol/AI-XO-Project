@@ -27,32 +27,32 @@ services:
             backend:
                 ipv4_address: 10.0.15.101
         
-    db:
-        image: mysql
-        container_name: mysql-db
-        command: 
-            --default-authentication-plugin=mysql_native_password
-            --character-set-server=utf8mb4
-            --collation-server=utf8mb4_unicode_ci
-        restart: always
-        # ports:
-        #     - 13306:3306
-        # environment:
-        #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-        volumes:
-            - ${MAIN_PATH}/db/data:/var/lib/mysql
-            - ${MAIN_PATH}/db/conf.d:/etc/mysql/conf.d
-        networks:
-            backend:
-                ipv4_address: 10.0.15.100
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        container_name: myadmin
-        restart: always
-        ports:
-            - 9000:80
-        networks:
-            - backend
+    # db:
+    #     image: mysql
+    #     container_name: mysql-db
+    #     command: 
+    #         --default-authentication-plugin=mysql_native_password
+    #         --character-set-server=utf8mb4
+    #         --collation-server=utf8mb4_unicode_ci
+    #     restart: always
+    #     # ports:
+    #     #     - 13306:3306
+    #     # environment:
+    #     #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    #     volumes:
+    #         - ${MAIN_PATH}/db/data:/var/lib/mysql
+    #         - ${MAIN_PATH}/db/conf.d:/etc/mysql/conf.d
+    #     networks:
+    #         backend:
+    #             ipv4_address: 10.0.15.100
+    # phpmyadmin:
+    #     image: phpmyadmin/phpmyadmin
+    #     container_name: myadmin
+    #     restart: always
+    #     ports:
+    #         - 9000:80
+    #     networks:
+    #         - backend
 
 networks:
     frontend:
