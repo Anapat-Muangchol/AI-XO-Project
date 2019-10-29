@@ -7,7 +7,8 @@ services:
         ports:
             - 8080:80
         volumes:
-            - ${MAIN_PATH}/html:/usr/share/nginx/html
+            - ${MAIN_PATH}/web/html:/usr/share/nginx/html
+            - ${MAIN_PATH}/web/conf:/etc/nginx
         networks:
             - frontend
     api:
@@ -16,16 +17,16 @@ services:
         container_name: node-api
         restart: always
         ports:
-            - 3000:3000
+            - 13000:3000
         volumes:
             - ${MAIN_PATH}/restful-api:/app/rest-service
         working_dir: /app/rest-service
         command: npm start
         networks:
             frontend:
-                ipv4_address: 192.168.0.101
+                ipv4_address: 10.0.30.11
             backend:
-                ipv4_address: 10.0.15.101
+                ipv4_address: 10.0.20.11
         
     db:
         image: mysql
@@ -44,13 +45,13 @@ services:
             - ${MAIN_PATH}/db/conf.d:/etc/mysql/conf.d
         networks:
             backend:
-                ipv4_address: 10.0.15.100
+                ipv4_address: 10.0.20.10
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         container_name: myadmin
         restart: always
         ports:
-            - 9000:80
+            - 19000:80
         networks:
             - backend
 
@@ -58,11 +59,11 @@ networks:
     frontend:
         ipam:
             config:
-                - subnet: 192.168.0.0/24
+                - subnet: 10.0.30.0/24
     backend:
         ipam:
             config:
-                - subnet: 10.0.15.0/24
+                - subnet: 10.0.20.0/24
 
 # volumes:
 #     web-path: 
