@@ -9,5 +9,8 @@ app.listen(port, () => {
 })
 
 // import api path
-const users = require('./path/users')
-app.use('/users', users)
+const pattern = require('./path/pattern')
+app.use('/pattern', pattern)
+
+// const pathToWin = require('./path/pathToWin')
+// app.use('/pathToWin', pathToWin)

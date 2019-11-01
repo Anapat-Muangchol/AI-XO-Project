@@ -1,11 +1,11 @@
 const mysql = require('mysql')
 
 // ---------- Constant variable ----------
-const hostname = '10.0.15.100'
+const hostname = '10.0.20.10'
 const port = '3306'
 const user = 'root'
 const password = 'password'
-const database = 'mydb'
+const database = 'DB_AI_XO_PROJECT'
 
 // ---------- local mysql db connection ----------
 const connection = mysql.createConnection({

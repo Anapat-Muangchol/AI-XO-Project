@@ -3,6 +3,8 @@
 <head>
 	<title>XO AI Project</title>
 	<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+
+	<!-- ===== script ===== -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
 		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
@@ -10,8 +12,14 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
 		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
 		crossorigin="anonymous"></script>
+	<script type="text/javascript" src="./script/main.js"></script>
+	<script type="text/javascript" src="./script/constant.js"></script>
+
+	<!-- ===== stylesheet ===== -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
 		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="shortcut icon" href="#" />
+
 </head>
 
 <style>
@@ -242,6 +250,8 @@
 	var playSecond = null;
 	var turnPlay = 1;
 	var isEndGame = false;
+	var pathToWin = '';
+
 	$(document).ready(function () {
 
 	});
@@ -281,12 +291,35 @@
 		if (isEndGame) return false;
 		if (!boardXO[x][y]) {
 			var currentPlayer = getCurrentPlayer();
-			boardXO[x][y] = currentPlayer;
+			boardXO[x][y] = turnPlay;
 			$('span[p-x=' + x + '][p-y=' + y + ']').text(currentPlayer);
+
+			// ----- call service -----
+			// console.log(getPatternNow());
+			$.post(API_HOSTNAME+"/pattern",
+				{ "pattern" : getPatternNow()}
+			,function(datas, status){
+				if (status == 'success') {
+					// console.log(datas);
+					if (datas.result) {
+						if (pathToWin) pathToWin += '|';
+						pathToWin += datas.data.BOARD_PATTERN_ID
+					}
+				}
+			});
+
 			// check end game
 			if (checkDraw()) {
 				$('#result').text('>>> เสมอกัน <<<');
 				isEndGame = true;
+
+				// ----- call service -----
+				var playToWinPath = {
+					"PATH" : pathToWin,
+					"PLAYER_WIN" : 0
+				}
+				console.log(playToWinPath);
+
 				setTimeout(function () {
 					$('#result-popup').modal('show')
 					$('#turnPlayFrame').hide();
@@ -295,8 +328,15 @@
 			}
 			var whoIsWin = checkWin();
 			if (whoIsWin) {
-				$('#result').text('>>> ' + whoIsWin + ' ชนะ! <<<');
+				$('#result').text('>>> ' + getCurrentPlayer(whoIsWin) + ' ชนะ! <<<');
 				isEndGame = true;
+
+				// ----- call service -----
+				var playToWinPath = {
+					"PATH" : pathToWin,
+					"PLAYER_WIN" : whoIsWin
+				}
+				console.log(playToWinPath);
 
 				setTimeout(function () {
 					$('#result-popup').modal('show')
@@ -313,6 +353,17 @@
 		if (turnPlay == 1) return playFirst;
 		if (turnPlay == 2) return playSecond;
 	}
+	function getPatternNow() {
+		var pattern = '';
+		for (var i=0; i<boardXO.length; i++) {
+			for (var j=0; j<boardXO[i].length; j++) {
+				if (!boardXO[i][j]) pattern += '0';
+				else pattern += boardXO[i][j];
+			}
+		}
+		return pattern;
+	}
+
 	function checkDraw() {
 		if (boardXO[0][0] && boardXO[0][1] && boardXO[0][2]
 			&& boardXO[1][0] && boardXO[1][1] && boardXO[1][2]
