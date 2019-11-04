@@ -177,24 +177,6 @@ function getPatternByBoardPattern(pattern) {
     });
 }
 
-function getPathByPathToWin(path, playerWin) {
-    return new Promise((resolve,reject) => {
-        try {
-            const sql = 'SELECT * FROM BOARD_PATTERN ' 
-                + ' WHERE PATTERN = ?'
-            con.query(sql, pattern, (error, row) => {
-                if (error) throw error
-                
-                console.log('Query successfully.')
-                resolve(row)
-            })
-        } catch (error) {
-            console.log(`Error getPatternByBoardPattern( ${pattern} ) :  ${error}`)
-            reject(error)
-        }
-    });
-}
-
 function insertPattern(pattern) {
     return new Promise((resolve,reject) => {
         try {
@@ -216,8 +198,6 @@ function insertPattern(pattern) {
             reject(error)
         }
     });
-
-    
 }
 
 module.exports = router

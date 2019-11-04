@@ -12,5 +12,6 @@ app.listen(port, () => {
 const pattern = require('./path/pattern')
 app.use('/pattern', pattern)
 
-// const pathToWin = require('./path/pathToWin')
-// app.use('/pathToWin', pathToWin)
+const pathToWin = require('./path/pathToWin')
+app.use('/pathToWin', pathToWin)
+

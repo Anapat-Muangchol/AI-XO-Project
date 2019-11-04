@@ -113,10 +113,10 @@
 								<div class="card-body">
 									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
 										<label class="btn btn-success">
-											<input type="radio" name="firstPlayAi" id="firstPlayAi1" value="you">คุณ
+											<input type="radio" name="firstPlayAi" id="firstPlayAi1" value="you" onchange="readyToPlay()">คุณ
 										</label>
 										<label class="btn btn-danger">
-											<input type="radio" name="firstPlayAi" id="firstPlayAi2" value="ai">AI
+											<input type="radio" name="firstPlayAi" id="firstPlayAi2" value="ai" onchange="readyToPlay()">AI
 										</label>
 									</div>
 								</div>
@@ -128,10 +128,10 @@
 								<div class="card-body">
 									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
 										<label class="btn btn-success">
-											<input type="radio" name="youAre" id="X">X
+											<input type="radio" name="youAre" id="X" value="X" onchange="readyToPlay()">X
 										</label>
 										<label class="btn btn-primary">
-											<input type="radio" name="youAre" id="O">O
+											<input type="radio" name="youAre" id="O" value="O" onchange="readyToPlay()">O
 										</label>
 									</div>
 								</div>
@@ -147,12 +147,10 @@
 								<div class="card-body">
 									<div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 150px;">
 										<label class="btn btn-success">
-											<input type="radio" name="firstPlay" id="firstPlay1" value="X"
-												onchange="readyToPlay()">X
+											<input type="radio" name="firstPlay" id="firstPlay1" value="X" onchange="readyToPlay()">X
 										</label>
 										<label class="btn btn-primary">
-											<input type="radio" name="firstPlay" id="firstPlay2" value="O"
-												onchange="readyToPlay()">O
+											<input type="radio" name="firstPlay" id="firstPlay2" value="O" onchange="readyToPlay()">O
 										</label>
 									</div>
 								</div>
@@ -252,6 +250,9 @@
 	var isEndGame = false;
 	var pathToWin = '';
 
+	// ===== Play With AI ===== 
+	var aiIs = null;
+
 	$(document).ready(function () {
 
 	});
@@ -275,6 +276,23 @@
 				else playSecond = 'X'
 				playWithHuman();
 			}
+		} else if (playWith == 'AI') {
+			var firstPlayAi = $("input[name='firstPlayAi']:checked").val();
+			var youAre = $("input[name='youAre']:checked").val();
+			if (firstPlayAi && youAre) {
+				if (firstPlayAi == 'you') {
+					playFirst = youAre;
+					if (playFirst == 'X') playSecond = 'O';
+					else playSecond = 'X';
+					aiIs = playSecond;
+				} else if (firstPlayAi == 'ai') {
+					playSecond = youAre;
+					if (playSecond == 'X') playFirst = 'O';
+					else playFirst = 'X';
+					aiIs = playFirst;
+				}
+				playWithAI();
+			}
 		}
 	}
 	// ===== Play With Human ===== 
@@ -285,68 +303,62 @@
 		});
 	}
 	function displayPlayerTurn() {
-		$('#turnPlay').text(getCurrentPlayer());
+		if (playWith == 'Human') {
+			$('#turnPlay').text(getCurrentPlayer());
+		} else if (playWith == 'AI') {
+			var currentPlayer = getCurrentPlayer();
+			var textDisplay = '';
+			if (currentPlayer == aiIs) textDisplay = 'AI (' + currentPlayer + ')';
+			else textDisplay = 'คุณ (' + currentPlayer + ')';
+			$('#turnPlay').text(textDisplay);
+		}
 	}
 	function selectedCross(x, y) {
-		if (isEndGame) return false;
-		if (!boardXO[x][y]) {
-			var currentPlayer = getCurrentPlayer();
-			boardXO[x][y] = turnPlay;
-			$('span[p-x=' + x + '][p-y=' + y + ']').text(currentPlayer);
+		if (playWith == 'Human') {
+			if (isEndGame) return false;
+			if (!boardXO[x][y]) {
+				var currentPlayer = getCurrentPlayer();
+				boardXO[x][y] = turnPlay;
+				$('span[p-x=' + x + '][p-y=' + y + ']').text(currentPlayer);
 
-			// ----- call service -----
-			// console.log(getPatternNow());
-			$.post(API_HOSTNAME+"/pattern",
-				{ "pattern" : getPatternNow()}
-			,function(datas, status){
-				if (status == 'success') {
-					// console.log(datas);
-					if (datas.result) {
-						if (pathToWin) pathToWin += '|';
-						pathToWin += datas.data.BOARD_PATTERN_ID
-					}
+				// check end game
+				var whoIsWin = checkWin();
+				if (whoIsWin) {
+					$('#result').text('>>> ' + getCurrentPlayer(whoIsWin) + ' ชนะ! <<<');
+					isEndGame = true;
+
+					// ----- call service -----
+					savePathToWin(whoIsWin);
+
+					setTimeout(function () {
+						$('#result-popup').modal('show')
+						$('#turnPlayFrame').hide();
+						$('#playAgain').show();
+					}, 1500);
+				} else if (checkDraw()) {
+					$('#result').text('>>> เสมอกัน <<<');
+					isEndGame = true;
+
+					// ----- call service -----
+					savePathToWin(0);
+
+					setTimeout(function () {
+						$('#result-popup').modal('show')
+						$('#turnPlayFrame').hide();
+						$('#playAgain').show();
+					}, 1500);
+				} else {
+					// ยังไม่จบเกม
+					// ----- call service -----
+					savePattern();
 				}
-			});
-
-			// check end game
-			if (checkDraw()) {
-				$('#result').text('>>> เสมอกัน <<<');
-				isEndGame = true;
-
-				// ----- call service -----
-				var playToWinPath = {
-					"PATH" : pathToWin,
-					"PLAYER_WIN" : 0
-				}
-				console.log(playToWinPath);
-
-				setTimeout(function () {
-					$('#result-popup').modal('show')
-					$('#turnPlayFrame').hide();
-					$('#playAgain').show();
-				}, 1500);
+				
+				if (turnPlay == 1) turnPlay = 2;
+				else turnPlay = 1;
+				displayPlayerTurn(currentPlayer);
 			}
-			var whoIsWin = checkWin();
-			if (whoIsWin) {
-				$('#result').text('>>> ' + getCurrentPlayer(whoIsWin) + ' ชนะ! <<<');
-				isEndGame = true;
-
-				// ----- call service -----
-				var playToWinPath = {
-					"PATH" : pathToWin,
-					"PLAYER_WIN" : whoIsWin
-				}
-				console.log(playToWinPath);
-
-				setTimeout(function () {
-					$('#result-popup').modal('show')
-					$('#turnPlayFrame').hide();
-					$('#playAgain').show();
-				}, 1500);
-			}
-			if (turnPlay == 1) turnPlay = 2;
-			else turnPlay = 1;
-			displayPlayerTurn(currentPlayer);
+		} else if (playWith == 'AI') {
+			selectedCrossWithAi(x, y);
 		}
 	}
 	function getCurrentPlayer() {
@@ -446,6 +458,130 @@
 		$('span[p-x=' + x2 + '][p-y=' + y2 + ']').parent().addClass("win-hilight");
 		$('span[p-x=' + x3 + '][p-y=' + y3 + ']').parent().addClass("win-hilight");
 	}
+
+	
+	// ===== Play With AI ===== 
+	function playWithAI() {
+		$('#menuForPlayWithAI').fadeOut(500, function () {
+			displayPlayerTurn(getCurrentPlayer());
+			$('#playingGame').fadeIn(500, function() {
+				var currentPlayer = getCurrentPlayer();
+				if (currentPlayer == aiIs) {
+					var datas = {
+						"result": true,
+						"data": {
+							"BOARD_PATTERN_ID": 0,
+							"PATTERN": "000000000"
+						}
+					}
+					aiPlay(datas);
+				}
+			});
+		});
+	}
+	function selectedCrossWithAi(x, y) {
+		if (isEndGame) return false;
+		var currentPlayer = getCurrentPlayer();
+		if (currentPlayer == aiIs) return false;
+
+		if (!boardXO[x][y]) {
+			boardXO[x][y] = turnPlay;
+			$('span[p-x=' + x + '][p-y=' + y + ']').text(currentPlayer);
+
+			// check end game
+			var whoIsWin = checkWin();
+			if (whoIsWin) {
+				$('#result').text('>>> ' + $("turnPlay").innerText + ' ชนะ! <<<');
+				isEndGame = true;
+
+				// ----- call service -----
+				savePathToWin(whoIsWin);
+
+				setTimeout(function () {
+					$('#result-popup').modal('show')
+					$('#turnPlayFrame').hide();
+					$('#playAgain').show();
+				}, 1500);
+			} else if (checkDraw()) {
+				$('#result').text('>>> เสมอกัน <<<');
+				isEndGame = true;
+
+				// ----- call service -----
+				savePathToWin(0);
+
+				setTimeout(function () {
+					$('#result-popup').modal('show')
+					$('#turnPlayFrame').hide();
+					$('#playAgain').show();
+				}, 1500);
+			} else {
+				// ยังไม่จบเกม
+				// ----- call service -----
+				savePattern().then(datas => {
+					aiPlay(datas);
+				})
+			}
+
+			if (turnPlay == 1) turnPlay = 2;
+			else turnPlay = 1;
+			displayPlayerTurn(currentPlayer);
+		}
+	}
+
+	function aiPlay(datas) {
+		setTimeout(function () {
+			getCorrectSelectedByAi(datas.data);
+		}, 1500);
+	}
+	
+	// ----- call service function -----
+	function savePattern() {
+		return new Promise((resolve,reject) => {
+			// console.log(getPatternNow());
+			$.post(API_HOSTNAME+"/pattern",
+				{ "pattern" : getPatternNow()}
+			,function(datas, status){
+				if (status == 'success') {
+					// console.log(datas);
+					if (datas.result) {
+						if (pathToWin) pathToWin += '|';
+						pathToWin += datas.data.BOARD_PATTERN_ID
+					}
+					console.log(datas);
+					resolve(datas);
+				}
+			});
+		});
+	}
+	function savePathToWin(whoIsWin) {
+		savePattern().then(datas => {
+			var playToWinPath = {
+				"pathToWin" : pathToWin,
+				"playerWin" : whoIsWin
+			}
+			console.log(playToWinPath);
+			$.post(API_HOSTNAME+"/pathToWin", playToWinPath, function(datas, status){
+				if (status == 'success') {
+					console.log(datas);
+				}
+			});
+        })
+	}
+	function getCorrectSelectedByAi(data) {
+		return new Promise((resolve,reject) => {
+			// console.log(getPatternNow());
+			$.get(API_HOSTNAME+"/pathToWin/"+data.BOARD_PATTERN_ID, function(datas, status){
+				if (status == 'success') {
+					console.log(datas);
+					if (datas.result) {
+						
+						resolve(datas)
+					}
+				}
+			});
+		});
+	}
+
 </script>
 
 </html>
