@@ -40,43 +40,16 @@ router.get('/', function (req, res) {
     })
 })
 
-// router.get('/:patternId', (req, res) => {
-//     var patternId = req.params.patternId
-//     console.log(`Request HTTP GET /${apiName}/${patternId}`)
-
-//     let results = {
-//         result : true,
-//         data : []
-//     }
-
-//     getPatternByKey(patternId).then(rows => {
-//         if (rows) {
-//             console.log(rows[0])
-//             results.data = rows[0]
-//         } else {
-//             results.massage = 'Not found!'
-//             console.log('Not found!')
-//         }
-//         res.json(results)
-//     }).catch(err => {
-//         console.log(`Error query ${apiName}/${patternId} :  ${err}`)
-//         results.result = false
-//         results.massage = err.sqlMessage
-//         res.json(results)
-//     })
-
-// })
-
-router.get('/:pattern', (req, res) => {
-    var pattern = req.params.pattern
-    console.log(`Request HTTP GET /${apiName}/${pattern}`)
+router.get('/:patternId', (req, res) => {
+    var patternId = req.params.patternId
+    console.log(`Request HTTP GET /${apiName}/${patternId}`)
 
     let results = {
         result : true,
         data : []
     }
 
-    getPatternByBoardPattern(pattern).then(rows => {
+    getPatternByKey(patternId).then(rows => {
         if (rows) {
             console.log(rows[0])
             results.data = rows[0]
@@ -86,13 +59,40 @@ router.get('/:pattern', (req, res) => {
         }
         res.json(results)
     }).catch(err => {
-        console.log(`Error query ${apiName}/${pattern} :  ${err}`)
+        console.log(`Error query ${apiName}/${patternId} :  ${err}`)
         results.result = false
         results.massage = err.sqlMessage
         res.json(results)
     })
 
 })
+
+// router.get('/:pattern', (req, res) => {
+//     var pattern = req.params.pattern
+//     console.log(`Request HTTP GET /${apiName}/${pattern}`)
+
+//     let results = {
+//         result : true,
+//         data : []
+//     }
+
+//     getPatternByBoardPattern(pattern).then(rows => {
+//         if (rows) {
+//             console.log(rows[0])
+//             results.data = rows[0]
+//         } else {
+//             results.massage = 'Not found!'
+//             console.log('Not found!')
+//         }
+//         res.json(results)
+//     }).catch(err => {
+//         console.log(`Error query ${apiName}/${pattern} :  ${err}`)
+//         results.result = false
+//         results.massage = err.sqlMessage
+//         res.json(results)
+//     })
+
+// })
 
 // HTTP : POST Method.
 router.post('/', (req, res) => {

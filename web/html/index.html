@@ -313,6 +313,15 @@
 			$('#turnPlay').text(textDisplay);
 		}
 	}
+	function getDisplayPlayerTurnWithAi() {
+		if (playWith == 'AI') {
+			var currentPlayer = getCurrentPlayer();
+			var textDisplay = '';
+			if (currentPlayer == aiIs) textDisplay = 'AI (' + currentPlayer + ')';
+			else textDisplay = 'คุณ (' + currentPlayer + ')';
+			return textDisplay;
+		}
+	}
 	function selectedCross(x, y) {
 		if (playWith == 'Human') {
 			if (isEndGame) return false;
@@ -371,6 +380,18 @@
 			for (var j=0; j<boardXO[i].length; j++) {
 				if (!boardXO[i][j]) pattern += '0';
 				else pattern += boardXO[i][j];
+			}
+		}
+		return pattern;
+	}
+	function getChangePositionPattern(patternChange) {
+		var indexPatternChange = 0;
+		for (var i=0; i<boardXO.length; i++) {
+			for (var j=0; j<boardXO[i].length; j++) {
+				if (patternChange.charAt(indexPatternChange) != '0' && !boardXO[i][j]) {
+					return {x:i, y:j};
+				}
+				indexPatternChange += 1;
 			}
 		}
 		return pattern;
@@ -491,7 +512,7 @@
 			// check end game
 			var whoIsWin = checkWin();
 			if (whoIsWin) {
-				$('#result').text('>>> ' + $("turnPlay").innerText + ' ชนะ! <<<');
+				$('#result').text('>>> ' + getDisplayPlayerTurnWithAi() + ' ชนะ! <<<');
 				isEndGame = true;
 
 				// ----- call service -----
@@ -520,18 +541,76 @@
 				savePattern().then(datas => {
 					aiPlay(datas);
 				})
-			}
 
-			if (turnPlay == 1) turnPlay = 2;
-			else turnPlay = 1;
-			displayPlayerTurn(currentPlayer);
+				if (turnPlay == 1) turnPlay = 2;
+				else turnPlay = 1;
+				displayPlayerTurn(currentPlayer);
+			}
 		}
 	}
 
 	function aiPlay(datas) {
 		setTimeout(function () {
-			getCorrectSelectedByAi(datas.data);
-		}, 1500);
+			getCorrectSelectedByAi(datas.data).then(position => {
+				if (isEndGame) return false;
+				var currentPlayer = getCurrentPlayer();
+				if (currentPlayer != aiIs) return false;
+
+				var x = position.x;
+				var y = position.y;
+
+				if (!boardXO[x][y]) {
+					boardXO[x][y] = turnPlay;
+					$('span[p-x=' + x + '][p-y=' + y + ']').text(currentPlayer);
+
+					// check end game
+					var whoIsWin = checkWin();
+					if (whoIsWin) {
+						$('#result').text('>>> ' + getDisplayPlayerTurnWithAi() + ' ชนะ! <<<');
+						isEndGame = true;
+
+						// ----- call service -----
+						savePathToWin(whoIsWin);
+
+						setTimeout(function () {
+							$('#result-popup').modal('show')
+							$('#turnPlayFrame').hide();
+							$('#playAgain').show();
+						}, 1500);
+					} else if (checkDraw()) {
+						$('#result').text('>>> เสมอกัน <<<');
+						isEndGame = true;
+
+						// ----- call service -----
+						savePathToWin(0);
+
+						setTimeout(function () {
+							$('#result-popup').modal('show')
+							$('#turnPlayFrame').hide();
+							$('#playAgain').show();
+						}, 1500);
+					} else {
+						// ยังไม่จบเกม
+						// ----- call service -----
+						savePattern();
+						if (turnPlay == 1) turnPlay = 2;
+						else turnPlay = 1;
+						displayPlayerTurn(currentPlayer);
+					}
+				}
+			})
+		}, 1000);
+	}
+
+	function randomSelected() {
+		var blankPosition = [];
+		for (var i=0; i<boardXO.length; i++) {
+			for (var j=0; j<boardXO[i].length; j++) {
+				if (!boardXO[i][j]) blankPosition.push({x:i, y:j})
+			}
+		}
+		var indexRandom = Math.floor(Math.random() * blankPosition.length);
+		return blankPosition[indexRandom];
 	}
 	
 	// ----- call service function -----
@@ -567,15 +646,52 @@
 			});
         })
 	}
-	function getCorrectSelectedByAi(data) {
+	function getCorrectSelectedByAi(dataPattern) {
 		return new Promise((resolve,reject) => {
 			// console.log(getPatternNow());
-			$.get(API_HOSTNAME+"/pathToWin/"+data.BOARD_PATTERN_ID, function(datas, status){
+			$.get(API_HOSTNAME+"/pathToWin/"+dataPattern.BOARD_PATTERN_ID, function(datas, status){
 				if (status == 'success') {
 					console.log(datas);
 					if (datas.result) {
-						
-						resolve(datas)
+						var patternMap = {};
+						datas.data.forEach(item => {
+							var strPath = item.PATH;
+							strPath = strPath.substr(strPath.indexOf(dataPattern.BOARD_PATTERN_ID+'|'));
+							var arrStr = strPath.split('|');
+							if (arrStr.length >= 2) {
+								var newPath = arrStr[1];
+								if (!(newPath in patternMap)) patternMap[newPath] = 0;
+
+								if (item.PLAYER_WIN == '0') {} // Do not thing
+								else if (item.PLAYER_WIN == turnPlay) {
+									patternMap[newPath] += 1;
+								} else {
+									patternMap[newPath] -= 1;
+								}
+							}
+						});
+
+						var bestPath = null;
+						var cntMax = 0;
+						for (var key in patternMap) {
+							console.log(key + ' : ' + patternMap[key]);
+							if (patternMap[key] > cntMax) {
+								bestPath = key;
+								cntMax = patternMap[key];
+							}
+						}
+						console.log('Best Path is ' + bestPath);
+						if (!bestPath) {
+							// Random
+							resolve(randomSelected());
+						} else {
+							$.get(API_HOSTNAME+"/pattern/"+bestPath, function(datas, status){
+								if (datas.result) {
+									var position = getChangePositionPattern(datas.data.PATTERN);
+									resolve(position);
+								}
+							});
+						} 
 					}
 				}
 			});
