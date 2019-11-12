@@ -13,15 +13,28 @@ services:
             - frontend
     api:
         # ========== Node js Build REST Service ==========
-        image: node:8.7-alpine
+        # image: node:8.7-alpine
+        # container_name: node-api
+        # restart: always
+        # ports:
+        #     - 13000:3000
+        # volumes:
+        #     - ${MAIN_PATH}/restful-api:/app/rest-service
+        # user: root
+        # working_dir: /app/rest-service
+        # command: npm start
+        # # command: npm start-node
+        # networks:
+        #     frontend:
+        #         ipv4_address: 10.0.30.11
+        #     backend:
+        #         ipv4_address: 10.0.20.11
+
+        build: ./restful-api
         container_name: node-api
         restart: always
         ports:
             - 13000:3000
-        volumes:
-            - ${MAIN_PATH}/restful-api:/app/rest-service
-        working_dir: /app/rest-service
-        command: npm start
         networks:
             frontend:
                 ipv4_address: 10.0.30.11
