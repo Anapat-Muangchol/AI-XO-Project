@@ -11,6 +11,19 @@ services:
             - ${MAIN_PATH}/web/conf:/etc/nginx
         networks:
             - frontend
+
+        # # build: ./web
+        # image: web:v1.0.0
+        # container_name: web
+        # stdin_open: true
+        # tty: true
+        # restart: always
+        # ports:
+        #     - 8080:80
+        # # command: service nginx start
+        # networks:
+        #     - frontend
+
     api:
         # ========== Node js Build REST Service ==========
         # image: node:8.7-alpine
@@ -31,10 +44,11 @@ services:
         #         ipv4_address: 10.0.20.11
 
         build: ./restful-api
+        image: node-api:v1.0.0
         container_name: node-api
         restart: always
         ports:
-            - 13000:3000
+            - 3000:3000
         networks:
             frontend:
                 ipv4_address: 10.0.30.11
